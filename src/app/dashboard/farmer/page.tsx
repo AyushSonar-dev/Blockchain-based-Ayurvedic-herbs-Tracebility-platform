@@ -1,10 +1,15 @@
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Home, Plus, HelpCircle, ChevronDown, MapPin } from "lucide-react"
-import Link from "next/link"
-import { BatchAnalytics } from "@/components/analytics-chart"
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Home, Plus, HelpCircle, ChevronDown, MapPin } from "lucide-react";
+import Link from "next/link";
+import { BatchAnalytics } from "@/components/analytics-chart";
 
 const batches = [
   {
@@ -71,7 +76,7 @@ const batches = [
     date: "2024-01-08",
     statusColor: "bg-blue-500 text-white",
   },
-]
+];
 
 export default function FarmerDashboard() {
   return (
@@ -87,7 +92,9 @@ export default function FarmerDashboard() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">Welcome, John Smith</h2>
-                  <p className="text-sm text-gray-400">Manage your harvest batches and track progress</p>
+                  <p className="text-sm text-gray-400">
+                    Manage your harvest batches and track progress
+                  </p>
                   <p className="text-xs text-gray-500">Profile</p>
                 </div>
               </div>
@@ -95,22 +102,27 @@ export default function FarmerDashboard() {
 
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">
+                <Button
+                  variant="ghost"
+                  className="text-gray-300 hover:text-white hover:bg-gray-800"
+                >
                   <Home className="w-4 h-4 mr-2" />
                   Home
                 </Button>
               </Link>
 
-              <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold">📊 My Batches</Button>
-              <Link href={'/help'}>
-              <Button  variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">
-                <HelpCircle className="w-4 h-4 mr-2" />
-                Help
+              <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold">
+                📊 My Batches
               </Button>
-              
+              <Link href={"/help"}>
+                <Button
+                  variant="ghost"
+                  className="text-gray-300 hover:text-white hover:bg-gray-800"
+                >
+                  <HelpCircle className="w-4 h-4 mr-2" />
+                  Help
+                </Button>
               </Link>
-              
-              
             </div>
           </div>
         </div>
@@ -121,22 +133,38 @@ export default function FarmerDashboard() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">My Harvest Batches</h1>
           <div className="flex items-center gap-4">
-            <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold rounded-lg">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Harvest
-            </Button>
+            <Link href={'/dashboard/farmer/Addharvest'}>
+              <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold rounded-lg">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Harvest
+              </Button>
+            </Link>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="border-gray-700 text-white hover:bg-gray-800 bg-transparent">
+                <Button
+                  variant="outline"
+                  className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
+                >
                   All Status <ChevronDown className="w-4 h-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-gray-900 border-gray-700">
-                <DropdownMenuItem className="text-white hover:bg-gray-800">All Status</DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">Collected</DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">Received</DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">In Processing</DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">Processed</DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-gray-800">
+                  All Status
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-gray-800">
+                  Collected
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-gray-800">
+                  Received
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-gray-800">
+                  In Processing
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-gray-800">
+                  Processed
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -151,17 +179,32 @@ export default function FarmerDashboard() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-800">
-                  <th className="text-left p-4 text-gray-400 font-medium">Batch ID</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">Quantity</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">Location</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">Status</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">Date</th>
-                  <th className="text-left p-4 text-gray-400 font-medium">Actions</th>
+                  <th className="text-left p-4 text-gray-400 font-medium">
+                    Batch ID
+                  </th>
+                  <th className="text-left p-4 text-gray-400 font-medium">
+                    Quantity
+                  </th>
+                  <th className="text-left p-4 text-gray-400 font-medium">
+                    Location
+                  </th>
+                  <th className="text-left p-4 text-gray-400 font-medium">
+                    Status
+                  </th>
+                  <th className="text-left p-4 text-gray-400 font-medium">
+                    Date
+                  </th>
+                  <th className="text-left p-4 text-gray-400 font-medium">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {batches.map((batch) => (
-                  <tr key={batch.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <tr
+                    key={batch.id}
+                    className="border-b border-gray-800/50 hover:bg-gray-800/30"
+                  >
                     <td className="p-4 font-medium">{batch.id}</td>
                     <td className="p-4">{batch.quantity}</td>
                     <td className="p-4">
@@ -171,7 +214,11 @@ export default function FarmerDashboard() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <Badge className={`${batch.statusColor} rounded-full px-3 py-1`}>{batch.status}</Badge>
+                      <Badge
+                        className={`${batch.statusColor} rounded-full px-3 py-1`}
+                      >
+                        {batch.status}
+                      </Badge>
                     </td>
                     <td className="p-4 text-gray-300">{batch.date}</td>
                     <td className="p-4">
@@ -194,7 +241,9 @@ export default function FarmerDashboard() {
         <div className="flex items-center justify-between mt-6">
           <p className="text-sm text-gray-400">Showing 8 batches</p>
           <div className="flex items-center gap-2">
-            <Button className="bg-[#A6FF00] text-black hover:bg-[#8FE600] w-10 h-10 rounded-lg">1</Button>
+            <Button className="bg-[#A6FF00] text-black hover:bg-[#8FE600] w-10 h-10 rounded-lg">
+              1
+            </Button>
             <Button
               variant="outline"
               className="border-gray-700 text-white hover:bg-gray-800 w-10 h-10 rounded-lg bg-transparent"
@@ -211,5 +260,5 @@ export default function FarmerDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

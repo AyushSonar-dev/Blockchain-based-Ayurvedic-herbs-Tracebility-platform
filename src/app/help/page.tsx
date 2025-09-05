@@ -41,12 +41,7 @@ function HelpPage() {
                   Home
                 </Button>
               </Link>
-              <Link href="/add-harvest">
-                <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Harvest
-                </Button>
-              </Link>
+
               <Link  href={`/dashboard/${role}`}>
                 <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">
                   📊 My Batches
