@@ -1,20 +1,95 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, Phone, Lock } from "lucide-react"
-import Link from "next/link"
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import axios from "axios";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Mail, Phone, Lock, User } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 export default function SignUpPage() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get("role");
+
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    phone: "",
+    orgType: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const router = useRouter();
+    if (role === "farmer") {
+      setFormData({ ...formData, orgType: "farmer" });
+    } else if (role === "processor") {
+      setFormData({ ...formData, orgType: "processor" });
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/users/register",
+        formData
+      );
+      console.log("Response:", res.data);
+
+      alert("Signup successful you may signin now ✅");
+      router.push("/Auth/sigin");
+    } catch (err: any) {
+      console.error("Error:", err.response?.data || err.message);
+      alert("Signup failed ❌");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-900 border-gray-800 shadow-2xl">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
-          <CardDescription className="text-gray-400">Join the traceability platform to get started</CardDescription>
+          <CardTitle className="text-2xl font-bold">
+            Create an Account
+          </CardTitle>
+          <CardDescription className="text-gray-400">
+            Join the traceability platform to get started
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">
+                Name
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  onChange={handleChange}
+                  value={formData.username}
+                  name="username"
+                  placeholder="Enter your name"
+                  required
+                  className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email
@@ -22,7 +97,9 @@ export default function SignUpPage() {
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  id="email"
+                  onChange={handleChange}
+                  value={formData.email}
+                  name="email"
                   type="email"
                   placeholder="Enter your email"
                   required
@@ -38,8 +115,10 @@ export default function SignUpPage() {
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  id="phone"
-                  type="tel"
+                  onChange={handleChange}
+                  value={formData.phone}
+                  name="phone"
+                  type="text"
                   placeholder="Enter your phone number"
                   required
                   className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
@@ -54,7 +133,9 @@ export default function SignUpPage() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  id="password"
+                  onChange={handleChange}
+                  value={formData.password}
+                  name="password"
                   type="password"
                   placeholder="Create a password"
                   required
@@ -85,5 +166,5 @@ export default function SignUpPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

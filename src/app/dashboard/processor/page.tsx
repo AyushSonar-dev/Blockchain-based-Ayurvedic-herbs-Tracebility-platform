@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Home,
   Plus,
@@ -14,9 +9,15 @@ import {
   ChevronDown,
   MapPin,
   User,
+  Link,
 } from "lucide-react";
-import Link from "next/link";
 import { ProcessingAnalytics } from "@/components/analytics-chart";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const processingBatches = [
   {
@@ -87,93 +88,48 @@ const processingBatches = [
 
 export default function ProcessorDashboard() {
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Navigation */}
-      <nav className="border-b border-gray-800 bg-gray-900/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#A6FF00] rounded-full flex items-center justify-center text-black font-bold">
-                  AP
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold">Welcome, Alex Processor</h2>
-                  <p className="text-sm text-gray-400">
-                    Manage processing batches and track status
-                  </p>
-                  <p className="text-xs text-gray-500">Profile</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button
-                  variant="ghost"
-                  className="text-gray-300 hover:text-white hover:bg-gray-800"
-                >
-                  <Home className="w-4 h-4 mr-2" />
-                  Home
-                </Button>
-              </Link>
-
-              <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold">
-                🏭 Processing Batches
-              </Button>
-              <Link href={"/help"}>
-                <Button
-                  variant="ghost"
-                  className="text-gray-300 hover:text-white hover:bg-gray-800"
-                >
-                  <HelpCircle className="w-4 h-4 mr-2" />
-                  Help
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Processing Batches</h1>
-          <div className="flex items-center gap-4">
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Processing Batches</h1>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/processor/Addprocessing">
             <Button className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold rounded-lg">
               <Plus className="w-4 h-4 mr-2" />
               Add Batch
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
-                >
-                  All Status <ChevronDown className="w-4 h-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-gray-900 border-gray-700">
-                <DropdownMenuItem className="text-white hover:bg-gray-800">
-                  All Status
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">
-                  Received
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">
-                  In Processing
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-gray-800">
-                  Processed
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
+              >
+                All Status <ChevronDown className="w-4 h-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-gray-900 border-gray-700">
+              <DropdownMenuItem className="text-white hover:bg-gray-800">
+                All Status
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-white hover:bg-gray-800">
+                Received
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-white hover:bg-gray-800">
+                In Processing
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-white hover:bg-gray-800">
+                Processed
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+      </div>
 
-        {/* Processing Analytics Section */}
-        <ProcessingAnalytics />
-
+      {/* Processing Analytics Section */}
+      <ProcessingAnalytics />
+      <div>
         {/* Processing Batches Table */}
         <Card className="bg-gray-900/50 border-gray-800 mt-6">
           <div className="overflow-x-auto">
@@ -260,27 +216,27 @@ export default function ProcessorDashboard() {
             </table>
           </div>
         </Card>
+      </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between mt-6">
-          <p className="text-sm text-gray-400">Showing 8 batches</p>
-          <div className="flex items-center gap-2">
-            <Button className="bg-[#A6FF00] text-black hover:bg-[#8FE600] w-10 h-10 rounded-lg">
-              1
-            </Button>
-            <Button
-              variant="outline"
-              className="border-gray-700 text-white hover:bg-gray-800 w-10 h-10 rounded-lg bg-transparent"
-            >
-              2
-            </Button>
-            <Button
-              variant="outline"
-              className="border-gray-700 text-white hover:bg-gray-800 w-10 h-10 rounded-lg bg-transparent"
-            >
-              3
-            </Button>
-          </div>
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-6">
+        <p className="text-sm text-gray-400">Showing 8 batches</p>
+        <div className="flex items-center gap-2">
+          <Button className="bg-[#A6FF00] text-black hover:bg-[#8FE600] w-10 h-10 rounded-lg">
+            1
+          </Button>
+          <Button
+            variant="outline"
+            className="border-gray-700 text-white hover:bg-gray-800 w-10 h-10 rounded-lg bg-transparent"
+          >
+            2
+          </Button>
+          <Button
+            variant="outline"
+            className="border-gray-700 text-white hover:bg-gray-800 w-10 h-10 rounded-lg bg-transparent"
+          >
+            3
+          </Button>
         </div>
       </div>
     </div>
