@@ -1,5 +1,5 @@
 "use client"
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +13,30 @@ import { Home, Plus, HelpCircle, ChevronDown, MapPin } from "lucide-react";
 import Link from "next/link";
 import { BatchAnalytics } from "@/components/analytics-chart";
 import useUser from "@/app/store/store";
+import axiosInstance from "@/app/utils/axiosInstance";
+import { useRouter } from "next/navigation";
 
 export default function FarmerLayout({ children }: { children: ReactNode }) {
-  const user = useUser((state: any) => state.user)
+  const { user, setUser } = useUser()
+  const router = useRouter()
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await axiosInstance.get(`users/me`);
+        const user = res.data.user;
+        if (user) {
+          setUser(user)
+        }
+        if (!user) {
+          router.push(`/`);
+        }
+      } catch (err: any) {
+        console.log("Error:", err.response?.data || err.message);
+      }
+    };
+
+    getUser();
+  }, [router]);
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}

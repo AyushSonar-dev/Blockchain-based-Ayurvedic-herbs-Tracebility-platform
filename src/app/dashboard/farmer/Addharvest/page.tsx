@@ -8,15 +8,28 @@ import { Textarea } from "@/components/ui/textarea"
 import { Plus, Leaf, Home, HelpCircle } from "lucide-react"
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import useUser from "@/app/store/store"
+import axiosInstance from "@/app/utils/axiosInstance"
 
 function AddHarvestPage() {
-    const [role, setRole] = useState<string | null>(null);
-  
-    useEffect(() => {
-      // Run only on client
-      const storedRole = localStorage.getItem("role");
-      setRole(storedRole);
-    }, []);
+  const [role, setRole] = useState<string | null>(null);
+  const { user } = useUser()
+  const [farmId, setFarmId] = useState("")
+  useEffect(() => {
+    // Run only on client
+    const storedRole = localStorage.getItem("role");
+    setRole(storedRole);
+
+    const fetchFarmId = async () => {
+      if (user) {
+        const res = await axiosInstance.get(`/collection/farm/${user._id}`)
+
+        console.log("farm",res.data)
+      }
+    }
+    fetchFarmId()
+
+  }, [user]);
   return (
     <div className="min-h-screen bg-black text-white">
 
@@ -78,7 +91,7 @@ function AddHarvestPage() {
                 />
               </div>
 
-              
+
 
               <div className="flex gap-4 pt-4">
                 <Button
