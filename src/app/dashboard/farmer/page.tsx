@@ -1,7 +1,11 @@
+"use client"
+
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +15,7 @@ import {
 import { Home, Plus, HelpCircle, ChevronDown, MapPin } from "lucide-react";
 import Link from "next/link";
 import { BatchAnalytics } from "@/components/analytics-chart";
+
 
 const batches = [
   {
@@ -176,13 +181,16 @@ export default function FarmerDashboard() {
                       </td>
                       <td className="p-4 text-gray-300">{batch.date}</td>
                       <td className="p-4">
-                        <Button
+          
+                       <Link href="consumer/batch/id" >
+                       <Button
                           variant="outline"
                           size="sm"
                           className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
                         >
                           View Details
                         </Button>
+                       </Link> 
                       </td>
                     </tr>
                   ))}
