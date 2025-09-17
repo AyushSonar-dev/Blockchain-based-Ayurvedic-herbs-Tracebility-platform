@@ -1,3 +1,4 @@
+"use client"
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,8 +12,10 @@ import {
 import { Home, Plus, HelpCircle, ChevronDown, MapPin } from "lucide-react";
 import Link from "next/link";
 import { BatchAnalytics } from "@/components/analytics-chart";
+import useUser from "@/app/store/store";
 
 export default function FarmerLayout({ children }: { children: ReactNode }) {
+  const user = useUser((state: any) => state.user)
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -25,7 +28,7 @@ export default function FarmerLayout({ children }: { children: ReactNode }) {
                   JS
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">Welcome, John Smith</h2>
+                  <h2 className="text-xl font-bold">Welcome, {user?.name ? user?.name : 'Farmer Name'}</h2>
                   <p className="text-sm text-gray-400">
                     Manage your harvest batches and track progress
                   </p>

@@ -15,6 +15,7 @@ import { Plus, ChevronDown, MapPin } from "lucide-react";
 import Link from "next/link";
 import { BatchAnalytics } from "@/components/analytics-chart";
 import axiosInstance from "@/app/utils/axiosInstance";
+import useUser from "@/app/store/store";
 
 const batches = [
   {
@@ -85,12 +86,15 @@ const batches = [
 
 export default function FarmerDashboard() {
   const router = useRouter();
+  const { user, setUser } = useUser()
   useEffect(() => {
     const getUser = async () => {
       try {
         const res = await axiosInstance.get(`users/me`);
         const user = res.data.user;
-
+        if (user) {
+          setUser(user)
+        }
         if (!user) {
           router.push(`/`);
         }

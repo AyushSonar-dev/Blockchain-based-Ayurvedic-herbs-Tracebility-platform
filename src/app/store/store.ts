@@ -1,8 +1,12 @@
 import { create } from 'zustand'
 
-const useUser = create((set) => ({
+interface UserState {
+    user: any;
+    setUser: (user: any) => void;
+}
+const useUser = create<UserState>((set) => ({
     user: null,
-    setUser: () => set((state: any, user: any) => ({ user: user }))
+    setUser: (user) => set(() => ({ user })),
 }))
 
 export default useUser

@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import axiosInstance from "@/app/utils/axiosInstance";
+import useUser from "@/app/store/store";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
@@ -25,6 +26,7 @@ export default function SignUpPage() {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
   const router = useRouter();
+  const { user, setUser } = useUser()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -59,6 +61,7 @@ export default function SignUpPage() {
       );
       console.log("Response:", res.data);
       if (res.data && res.data.token) {
+        setUser(res.data.user)
         localStorage.setItem("token", res.data.token);
       }
       toast.success("Signup successful you may signin now ✅");
@@ -76,7 +79,8 @@ export default function SignUpPage() {
         );
         const user = res.data.user
 
-        if(user) {
+        if (user) {
+          setUser(user)
           router.push(`/dashboard/${user.orgType}`)
         }
 
