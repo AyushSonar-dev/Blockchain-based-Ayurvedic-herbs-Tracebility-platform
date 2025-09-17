@@ -49,26 +49,15 @@ function AddHarvestPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="quantity" className="text-sm font-medium">
-                    Quantity (kg)
-                  </Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    placeholder="Enter quantity"
-                    required
-                    className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
-                  />
-                </div>
+
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location" className="text-sm font-medium">
-                  Location
+                <Label htmlFor="species" className="text-sm font-medium">
+                  Species
                 </Label>
                 <Input
-                  id="location"
+                  id="species"
                   type="text"
                   placeholder="Enter field location"
                   required
@@ -77,28 +66,19 @@ function AddHarvestPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="harvestDate" className="text-sm font-medium">
-                  Harvest Date
+                <Label htmlFor="farmId" className="text-sm font-medium">
+                  FarmID
                 </Label>
                 <Input
-                  id="harvestDate"
-                  type="date"
+                  id="farmId"
+                  type="text"
                   required
+                  placeholder="Enter farm ID"
                   className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes" className="text-sm font-medium">
-                  Notes (Optional)
-                </Label>
-                <Textarea
-                  id="notes"
-                  placeholder="Add any additional notes about this harvest batch..."
-                  rows={4}
-                  className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300 resize-none"
-                />
-              </div>
+              
 
               <div className="flex gap-4 pt-4">
                 <Button

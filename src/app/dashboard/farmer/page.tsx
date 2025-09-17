@@ -1,20 +1,20 @@
 "use client"
 
-import { ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, Plus, HelpCircle, ChevronDown, MapPin } from "lucide-react";
+import { Plus, ChevronDown, MapPin } from "lucide-react";
 import Link from "next/link";
 import { BatchAnalytics } from "@/components/analytics-chart";
 import axiosInstance from "@/app/utils/axiosInstance";
-import { useRouter } from "next/navigation";
 
 const batches = [
   {
@@ -84,29 +84,25 @@ const batches = [
 ];
 
 export default function FarmerDashboard() {
-  const router = useRouter()
+  const router = useRouter();
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await axiosInstance.get(
-          `users/me`,
-        );
-        const user = res.data.user
+        const res = await axiosInstance.get(`users/me`);
+        const user = res.data.user;
 
         if (!user) {
-          router.push(`/`)
+          router.push(`/`);
         }
-
-
       } catch (err: any) {
         console.log("Error:", err.response?.data || err.message);
       }
-    }
+    };
 
-    getUser()
-  }, [])
+    getUser();
+  }, [router]);
+
   return (
-
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -239,6 +235,5 @@ export default function FarmerDashboard() {
         </div>
       </div>
     </div>
-
   );
 }
