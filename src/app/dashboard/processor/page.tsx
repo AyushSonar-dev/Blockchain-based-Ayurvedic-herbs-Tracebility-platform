@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
-
 const processingBatches = [
   {
     id: "B001",
@@ -206,19 +205,15 @@ export default function ProcessorDashboard() {
                             Mark Processed
                           </Button>
                         )}
-                        
+
                         <Button
-                          
                           variant="outline"
                           size="sm"
                           className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
-                            onClick={() => router.push(`/consumer/batch/testID`)}
+                          onClick={() => router.push(`/consumer/batch/testID`)}
                         >
                           View Details
                         </Button>
-                        
-                        
-                        
                       </div>
                     </td>
                   </tr>
