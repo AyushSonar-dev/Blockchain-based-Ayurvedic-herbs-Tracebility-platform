@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Card,
@@ -14,15 +14,19 @@ import {
 } from "@/components/ui/card";
 import { Mail, Phone, Lock, User } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { useSearchParams } from "next/navigation";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import axiosInstance from "@/app/utils/axiosInstance";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL
 
 export default function SignUpPage() {
   const searchParams = useSearchParams();
   const role = searchParams.get("role");
-
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
     phone: "",
@@ -36,30 +40,54 @@ export default function SignUpPage() {
     });
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const router = useRouter();
+
     if (role === "farmer") {
+
       setFormData({ ...formData, orgType: "farmer" });
+      console.log(formData)
     } else if (role === "processor") {
       setFormData({ ...formData, orgType: "processor" });
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/users/register",
-        formData
+      const res = await axiosInstance.post(
+        `/users/register`,
+        formData,
       );
       console.log("Response:", res.data);
-
-      alert("Signup successful you may signin now ✅");
-      router.push("/Auth/sigin");
+      if (res.data && res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+      toast.success("Signup successful you may signin now ✅");
     } catch (err: any) {
       console.error("Error:", err.response?.data || err.message);
-      alert("Signup failed ❌");
+      toast.error("Signup failed ❌");
     }
   };
 
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `users/me`,
+        );
+        const user = res.data.user
+
+        if(user) {
+          router.push(`/dashboard/${user.orgType}`)
+        }
+
+
+      } catch (err: any) {
+        console.log("Error:", err.response?.data || err.message);
+      }
+    }
+
+    getUser()
+  }, [])
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-gray-900 border-gray-800 shadow-2xl">
@@ -81,8 +109,8 @@ export default function SignUpPage() {
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   onChange={handleChange}
-                  value={formData.username}
-                  name="username"
+                  value={formData.name}
+                  name="name"
                   placeholder="Enter your name"
                   required
                   className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
