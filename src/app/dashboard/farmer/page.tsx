@@ -182,7 +182,7 @@ export default function FarmerDashboard() {
                       <td className="p-4 text-gray-300">{batch.date}</td>
                       <td className="p-4">
           
-                       <Link href="consumer/batch/id" >
+                       <Link href="/consumer/batch/testID" >
                        <Button
                           variant="outline"
                           size="sm"

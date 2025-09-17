@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+
 
 const processingBatches = [
   {
@@ -87,6 +91,7 @@ const processingBatches = [
 ];
 
 export default function ProcessorDashboard() {
+  const router = useRouter();
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -201,13 +206,19 @@ export default function ProcessorDashboard() {
                             Mark Processed
                           </Button>
                         )}
+                        
                         <Button
+                          
                           variant="outline"
                           size="sm"
                           className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
+                            onClick={() => router.push(`/consumer/batch/testID`)}
                         >
                           View Details
                         </Button>
+                        
+                        
+                        
                       </div>
                     </td>
                   </tr>
