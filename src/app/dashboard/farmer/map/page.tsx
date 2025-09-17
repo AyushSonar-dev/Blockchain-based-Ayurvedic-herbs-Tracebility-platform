@@ -4,10 +4,15 @@ import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Save, Trash2, Home, Plus, HelpCircle } from "lucide-react";
+import { MapPin, Save, Trash2, Home, Plus, HelpCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import "leaflet/dist/leaflet.css";
 import { useMap } from "react-leaflet";
+import { LatLngExpression } from "leaflet";
+import { toast } from "sonner";
+import axiosInstance from "@/app/utils/axiosInstance";
+import { useRouter } from "next/navigation";
+
 // Dynamically import Leaflet components to avoid SSR issues
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
@@ -64,12 +69,9 @@ function MapClickHandler({
 export default function FarmerMapPage() {
   const [fieldPoints, setFieldPoints] = useState<LatLng[]>([]);
   const [currentLocation, setCurrentLocation] = useState<LatLng | null>(null);
-  const [mapCenter, setMapCenter] = useState<LatLng>({
-    lat: 40.7128,
-    lng: -74.006,
-  }); // Default to NYC
   const [isClient, setIsClient] = useState(false);
-
+  const [createFarmLoading, setCreateFarmLoading] = useState(false)
+  const router = useRouter()
   useEffect(() => {
     setIsClient(true);
 
@@ -89,19 +91,18 @@ export default function FarmerMapPage() {
 
     fixLeafletIcons();
 
-    // Get user's current location
+    // Get user's current location and set map accordingly
     if (navigator.geolocation) {
-        console.log("current",navigator.geolocation);
       navigator.geolocation.getCurrentPosition(
         (position) => {
-            console.log("Curr",position);
-          setMapCenter({
+          const userLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-          });
+          };
+          setCurrentLocation(userLocation);
         },
         (error) => {
-          console.log(" Geolocation error:", error);
+          console.log("Geolocation error:", error);
           // Keep default location if geolocation fails
         }
       );
@@ -112,9 +113,52 @@ export default function FarmerMapPage() {
     setFieldPoints((prev) => [...prev, latlng]);
   }, []);
 
-  const handleSaveField = () => {
-    console.log(" Field coordinates:", fieldPoints);
-    // Here you would typically save to your backend
+  const handleSaveField = async () => {
+    if (fieldPoints.length < 3) {
+      // Not enough points to form a boundary
+      toast.error("Not Enough Points")
+      return;
+    }
+
+    // Format the boundary as an array of [lat, lng] pairs
+    const boundary = fieldPoints.map((point) => [point.lat, point.lng]);
+
+    // Optionally, close the polygon if not already closed
+    if (
+      boundary.length > 2 &&
+      (boundary[0][0] !== boundary[boundary.length - 1][0] ||
+        boundary[0][1] !== boundary[boundary.length - 1][1])
+    ) {
+      boundary.push([boundary[0][0], boundary[0][1]]);
+    }
+
+    const payload = {
+      boundaryJson: {
+        boundary: boundary,
+      },
+    };
+
+    try {
+      setCreateFarmLoading(true)
+      const res = await axiosInstance.post(
+        "/collection/create-farm",
+        payload
+      );
+      console.log("Farm saved successfully:", res.data);
+      // Optionally, show a success message or redirect
+      if (res.data) {
+        toast.success(res.data.message)
+        router.push('/dashboard/farmer/Addharvest')
+      }
+      setCreateFarmLoading(false)
+    } catch (error: any) {
+      setCreateFarmLoading(false)
+      console.error("Error saving farm:", error.response?.data || error.message);
+      toast.error(error.message || "Error Adding Farm")
+      // Optionally, show an error message
+    } finally {
+      setCreateFarmLoading(false)
+    }
   };
 
   const handleClearPoints = () => {
@@ -132,28 +176,55 @@ export default function FarmerMapPage() {
     );
   }
 
+  // Use currentLocation if available, otherwise fallback to NYC
+  // Ensure mapCenter is always a LatLngTuple ([number, number])
+  const mapCenter: [number, number] = currentLocation
+    ? [currentLocation.lat, currentLocation.lng]
+    : [40.7128, -74.006];
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Map Container */}
       <div className="relative h-[calc(100vh-80px)]">
         <MapContainer
-          center={[currentLocation?.lat || 40.7128, currentLocation?.lng || -74.006]}
+          center={mapCenter}
           zoom={15}
           className="h-full w-full"
           style={{ background: "#1a1a1a" }}
         >
           <TileLayer
-            url="https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
-            subdomains={["mt0", "mt1", "mt2", "mt3"]}
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {currentLocation && <FlyToCurrentLocation location={currentLocation} />}
           {/* Map click handler */}
           <MapClickHandler onMapClick={handleMapClick} />
 
-          {/* Render markers for each point */}
+          {/* Render markers for each field point */}
           {fieldPoints.map((point, index) => (
             <Marker key={index} position={[point.lat, point.lng]} />
           ))}
+
+          {/* Render user's current location as a distinct marker (not part of polygon) */}
+          {currentLocation && (
+            <Marker
+              position={[currentLocation.lat, currentLocation.lng]}
+              icon={
+                typeof window !== "undefined"
+                  ? new (require("leaflet").Icon)({
+                    iconUrl:
+                      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowUrl:
+                      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+                    shadowSize: [41, 41],
+                  })
+                  : undefined
+              }
+            />
+          )}
 
           {/* Render polygon if we have at least 3 points */}
           {fieldPoints.length >= 3 && (
@@ -184,6 +255,14 @@ export default function FarmerMapPage() {
               least 3 points are needed to create a field.
             </p>
 
+            {/* Show user's current location */}
+            {currentLocation && (
+              <div className="flex items-center gap-2 text-xs text-blue-400 mb-2">
+                <MapPin className="w-4 h-4 text-blue-400" />
+                Your current location: {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
+              </div>
+            )}
+
             {/* Coordinates List */}
             {fieldPoints.length > 0 && (
               <div className="max-h-32 overflow-y-auto space-y-1">
@@ -206,10 +285,11 @@ export default function FarmerMapPage() {
               <Button
                 onClick={handleSaveField}
                 disabled={fieldPoints.length < 3}
-                className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
               >
                 <Save className="w-4 h-4 mr-2" />
-                Save Field ({fieldPoints.length} points)
+                {createFarmLoading ? <Loader2 className="animate-spin" /> : `Save Farm (${fieldPoints.length} points)`}
+
               </Button>
 
               <Button
