@@ -178,6 +178,7 @@ export default function FarmerDashboard() {
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {batches.map((batch) => (
                   <tr
@@ -201,13 +202,16 @@ export default function FarmerDashboard() {
                     </td>
                     <td className="p-4 text-gray-300">{batch.date}</td>
                     <td className="p-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
-                      >
-                        View Details
-                      </Button>
+
+                      <Link href="/consumer/batch/testID" >
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
+                        >
+                          View Details
+                        </Button>
+                      </Link>
                     </td>
                   </tr>
                 ))}

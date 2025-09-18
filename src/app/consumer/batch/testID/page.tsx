@@ -3,7 +3,7 @@ import { ProductStory } from "@/components/product-story"
 import { FarmMap } from "@/components/farm-map"
 import { ProductTimeline } from "@/components/product-timeline"
 import { QualityBadges } from "@/components/quality-badges"
-import { SustainabilityStory } from "@/components/sustainability-story"
+
 
 interface ProductPageProps {
   params: {
@@ -19,7 +19,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         <QualityBadges />
         <FarmMap />
         <ProductTimeline />
-        <SustainabilityStory />
+       
       </div>
     </ConsumerLayout>
   )

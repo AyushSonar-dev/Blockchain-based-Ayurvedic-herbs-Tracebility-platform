@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const processingBatches = [
   {
@@ -84,9 +88,39 @@ const processingBatches = [
     date: "2024-01-08",
     statusColor: "bg-yellow-500 text-black",
   },
-];
+] as Batch[];
+type BatchStatus = "Received" | "In Processing" | "Processed";
+type Batch = {
+  id: string;
+  sourceLocation: string;
+  farmerName: string;
+  status: BatchStatus;
+  date: string;
+  statusColor: string;
+};
 
 export default function ProcessorDashboard() {
+  const [batches, setBatches] = useState<Batch[]>(processingBatches);
+  const router = useRouter();
+  
+    const updateStatus = (batchId: string, newStatus: BatchStatus) => {
+    setBatches((prevBatches) =>
+      prevBatches.map((batch) =>
+        batch.id === batchId
+          ? {
+              ...batch,
+              status: newStatus,
+              statusColor:
+                newStatus === "Received"
+                  ? "bg-orange-500 text-white"
+                  : newStatus === "In Processing"
+                  ? "bg-yellow-500 text-black"
+                  : "bg-blue-500 text-white",
+            }
+          : batch
+      )
+    );
+  };
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -157,7 +191,7 @@ export default function ProcessorDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {processingBatches.map((batch) => (
+                {batches.map((batch) => (
                   <tr
                     key={batch.id}
                     className="border-b border-gray-800/50 hover:bg-gray-800/30"
@@ -189,6 +223,7 @@ export default function ProcessorDashboard() {
                           <Button
                             size="sm"
                             className="bg-yellow-500 hover:bg-yellow-600 text-black"
+                           onClick={() => updateStatus(batch.id, "In Processing")}
                           >
                             Mark Processing
                           </Button>
@@ -197,14 +232,17 @@ export default function ProcessorDashboard() {
                           <Button
                             size="sm"
                             className="bg-blue-500 hover:bg-blue-600 text-white"
+                             onClick={() => updateStatus(batch.id, "Processed")}
                           >
                             Mark Processed
                           </Button>
                         )}
+
                         <Button
                           variant="outline"
                           size="sm"
                           className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
+                          onClick={() => router.push(`/consumer/batch/testID`)}
                         >
                           View Details
                         </Button>
@@ -242,3 +280,160 @@ export default function ProcessorDashboard() {
     </div>
   );
 }
+
+
+
+
+/*import { CheckCircle } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge" 
+  
+
+
+
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+// ----- Types -----
+type BatchStatus = "Received" | "In Processing" | "Processed";
+
+type Batch = {
+  id: string;
+  sourceLocation: string;
+  farmerName: string;
+  status: BatchStatus;
+  date: string;
+  statusColor: string;
+};
+
+// ----- Initial Data -----
+const initialBatches: Batch[] = [
+  {
+    id: "B001",
+    sourceLocation: "Field A-12",
+    farmerName: "John Smith",
+    status: "Received",
+    date: "2024-01-15",
+    statusColor: "bg-orange-500 text-white",
+  },
+  {
+    id: "B002",
+    sourceLocation: "Field B-08",
+    farmerName: "Sarah Johnson",
+    status: "In Processing",
+    date: "2024-01-14",
+    statusColor: "bg-yellow-500 text-black",
+  },
+  {
+    id: "B003",
+    sourceLocation: "Field C-05",
+    farmerName: "Mike Wilson",
+    status: "Processed",
+    date: "2024-01-13",
+    statusColor: "bg-blue-500 text-white",
+  },
+  // Add other batches as needed
+];
+
+// ----- Component -----
+export default function ProcessorDashboard() {
+  const [batches, setBatches] = useState<Batch[]>(initialBatches);
+  const router = useRouter();
+
+  // ----- Update Status -----
+  const updateStatus = (batchId: string, newStatus: BatchStatus) => {
+    setBatches((prevBatches) =>
+      prevBatches.map((batch) =>
+        batch.id === batchId
+          ? {
+              ...batch,
+              status: newStatus,
+              statusColor:
+                newStatus === "Received"
+                  ? "bg-orange-500 text-white"
+                  : newStatus === "In Processing"
+                  ? "bg-yellow-500 text-black"
+                  : "bg-blue-500 text-white",
+            }
+          : batch
+      )
+    );
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Card className="bg-gray-900/50 border-gray-800 mt-6">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-800">
+                <th className="text-left p-4 text-gray-400 font-medium">Batch ID</th>
+                <th className="text-left p-4 text-gray-400 font-medium">Source Location</th>
+                <th className="text-left p-4 text-gray-400 font-medium">Farmer Name</th>
+                <th className="text-left p-4 text-gray-400 font-medium">Status</th>
+                <th className="text-left p-4 text-gray-400 font-medium">Date</th>
+                <th className="text-left p-4 text-gray-400 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches.map((batch) => (
+                <tr key={batch.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                  <td className="p-4 font-medium">{batch.id}</td>
+                  <td className="p-4 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-red-500" />
+                    {batch.sourceLocation}
+                  </td>
+                  <td className="p-4 flex items-center gap-2">
+                    <User className="w-4 h-4 text-gray-400" />
+                    {batch.farmerName}
+                  </td>
+                  <td className="p-4">
+                    <Badge className={`${batch.statusColor} rounded-full px-3 py-1`}>
+                      {batch.status}
+                    </Badge>
+                  </td>
+                  <td className="p-4 text-gray-300">{batch.date}</td>
+                  <td className="p-4 flex items-center gap-2">
+                    {batch.status === "Received" && (
+                      <Button
+                        size="sm"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-black"
+                        onClick={() => updateStatus(batch.id, "In Processing")}
+                      >
+                        Mark Processing
+                      </Button>
+                    )}
+                    {batch.status === "In Processing" && (
+                      <Button
+                        size="sm"
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        onClick={() => updateStatus(batch.id, "Processed")}
+                      >
+                        Mark Processed
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-700 text-white hover:bg-gray-800 bg-transparent"
+                      onClick={() => router.push(`/consumer/batch/${batch.id}`)}
+                    >
+                      View Details
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+*/

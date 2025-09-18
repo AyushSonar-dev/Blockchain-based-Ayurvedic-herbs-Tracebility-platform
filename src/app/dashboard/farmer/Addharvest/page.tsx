@@ -72,7 +72,7 @@ function AddHarvestPage() {
                 <Input
                   id="species"
                   type="text"
-                  placeholder="Enter field location"
+                  placeholder="Enter species (e.g., Turmeric)"
                   required
                   className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
                 />
