@@ -5,16 +5,21 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Leaf, Home, HelpCircle } from "lucide-react"
+import { Plus, Leaf, Home, HelpCircle, Loader2 } from "lucide-react"
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import useUser from "@/app/store/store"
 import axiosInstance from "@/app/utils/axiosInstance"
+import { toast } from "sonner"
 
 function AddHarvestPage() {
   const [role, setRole] = useState<string | null>(null);
   const { user } = useUser()
   const [farmId, setFarmId] = useState("")
+  const [batchId, setBatchId] = useState("")
+  const [species, setSpecies] = useState("")
+  const [createBatchLoading, setCreateBatchLoading] = useState(false);
+
   useEffect(() => {
     // Run only on client
     const storedRole = localStorage.getItem("role");
@@ -24,12 +29,37 @@ function AddHarvestPage() {
       if (user) {
         const res = await axiosInstance.get(`/collection/farm/${user._id}`)
 
-        console.log("farm",res.data)
+        if (res.data.farm) {
+          setFarmId(res.data.farm.id)
+        }
       }
     }
     fetchFarmId()
-
   }, [user]);
+
+
+  const createCollection = async () => {
+
+    try {
+      setCreateBatchLoading(true)
+      const res = await axiosInstance.post('/collection/add', {
+        batchId,
+        species,
+        farmId
+      })
+
+      console.log(res)
+
+      toast.success("Batch created successfully")
+      setBatchId("")
+      setSpecies("")
+    } catch (error: any) {
+      console.log(error)
+      toast.error(error.message || "Error creating batch")
+    } finally {
+      setCreateBatchLoading(false)
+    }
+  }
   return (
     <div className="min-h-screen bg-black text-white">
 
@@ -47,7 +77,7 @@ function AddHarvestPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="batchId" className="text-sm font-medium">
@@ -56,6 +86,8 @@ function AddHarvestPage() {
                   <Input
                     id="batchId"
                     type="text"
+                    value={batchId}
+                    onChange={(e) => setBatchId(e.target.value)}
                     placeholder="Enter batch ID"
                     required
                     className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
@@ -72,33 +104,24 @@ function AddHarvestPage() {
                 <Input
                   id="species"
                   type="text"
+                  value={species}
+                  onChange={(e) => setSpecies(e.target.value)}
                   placeholder="Enter species (e.g., Turmeric)"
                   required
                   className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="farmId" className="text-sm font-medium">
-                  FarmID
-                </Label>
-                <Input
-                  id="farmId"
-                  type="text"
-                  required
-                  placeholder="Enter farm ID"
-                  className="bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
-                />
-              </div>
+
 
 
 
               <div className="flex gap-4 pt-4">
                 <Button
-                  type="submit"
-                  className="flex-1 bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold py-3 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#A6FF00]/20"
+                  onClick={() => createCollection()}
+                  className="flex-1 bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold py-3 rounded-lg justify-center items-center transition-all duration-300 hover:shadow-lg hover:shadow-[#A6FF00]/20"
                 >
-                  Create Batch
+                  {createBatchLoading ? <Loader2 className="animate-spin" /> : 'Create Batch'}
                 </Button>
                 <Link href="/farmer" className="flex-1">
                   <Button

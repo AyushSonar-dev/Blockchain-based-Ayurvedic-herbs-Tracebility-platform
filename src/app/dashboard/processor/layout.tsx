@@ -1,4 +1,6 @@
-import { ReactNode } from "react";
+"use client"
+
+import { ReactNode, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -9,8 +11,42 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Home, Plus, HelpCircle, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import useUser from "@/app/store/store";
+import axiosInstance from "@/app/utils/axiosInstance";
 
 export default function ProcessorLayout({ children }: { children: ReactNode }) {
+  const { user, setUser } = useUser()
+  const router = useRouter()
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await axiosInstance.get(`users/me`);
+        const user = res.data.user;
+        if (user) {
+          setUser(user)
+        }
+        if (!user) {
+          router.push(`/`);
+        }
+      } catch (err: any) {
+        console.log("Error:", err.response?.data || err.message);
+      }
+    };
+
+    getUser();
+  }, [router]);
+   // Logout handler
+   const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/users/logout");
+    } catch (err: any) {
+      // Optionally handle error
+      console.log(err)
+    }
+    setUser(null);
+    router.push("/");
+  };
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -23,7 +59,7 @@ export default function ProcessorLayout({ children }: { children: ReactNode }) {
                   AP
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold">Welcome, Alex Processor</h2>
+                  <h2 className="text-xl font-bold">Welcome, {user?.name ? user?.name : 'Farmer Name'}</h2>
                   <p className="text-sm text-gray-400">
                     Manage processing batches and track status
                   </p>
@@ -63,6 +99,15 @@ export default function ProcessorLayout({ children }: { children: ReactNode }) {
                   Help
                 </Button>
               </Link>
+              {user && (
+                <Button
+                  variant="outline"
+                  className="text-gray-300 border-gray-600 hover:text-white hover:bg-gray-800"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              )}
             </div>
           </div>
         </div>

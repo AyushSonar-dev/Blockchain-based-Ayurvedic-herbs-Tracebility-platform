@@ -10,24 +10,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 
-import { FormEvent } from "react";
 import { useState } from "react";
 import axios from "axios";
-import { useRouter, useSearchParams } from "next/navigation";
-import { cookies } from "next/headers";
+import { useRouter } from "next/navigation";
+import axiosInstance from "@/app/utils/axiosInstance";
+import { toast } from "sonner";
 
 export default function SignInPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const role = searchParams.get("role");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    orgType: "farmer", // default to farmer
   });
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -36,25 +39,25 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/users/login",
-        formData
+      // POST to /users/login with { email, password, orgType }
+      const res = await axiosInstance.post(
+        "/users/login",
+        {
+          email: formData.email,
+          password: formData.password,
+          orgType: formData.orgType,
+        }
       );
-      const token = res.data.token;
-      Cookies.set("token", token, { expires: 7 });
-      console.log("Response:", res.data);
-      if (role === "farmer") {
-        router.push("/dashboard/farmer");
-      } else if (role === "processor") {
-        router.push("/dashboard/processor");
-      }
-
-      alert("Signed-in successfully ✅");
+      // Redirect to /dashboard/{orgType}
+      router.push(`/dashboard/${formData.orgType}`);
+      toast.success("Signed-in successfully ✅");
     } catch (err: any) {
-      console.error("Error:", err.response?.data || err.message);
-      alert("login failed please try again ❌");
+      console.error("Error:", err.response?.data);
+      toast.error(err.response.data.message || "Login Error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,6 +86,7 @@ export default function SignInPage() {
                   placeholder="Enter your email"
                   required
                   className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -101,15 +105,42 @@ export default function SignInPage() {
                   placeholder="Enter your password"
                   required
                   className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
+                  disabled={loading}
                 />
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="orgType" className="text-sm font-medium">
+                Organization Type
+              </Label>
+              <select
+                id="orgType"
+                name="orgType"
+                value={formData.orgType}
+                onChange={handleChange}
+                required
+                className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-[#A6FF00] focus:ring-[#A6FF00]/20 transition-all duration-300"
+                disabled={loading}
+              >
+                <option value="farmer">Farmer</option>
+                <option value="processor">Processor</option>
+              </select>
+            </div>
+
             <Button
               type="submit"
-              className="w-full bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-[#A6FF00]/20"
+              className="w-full bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-[#A6FF00]/20 flex items-center justify-center"
+              disabled={loading}
             >
-              Sign In
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin w-5 h-5 mr-2" />
+                  Signing In...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 

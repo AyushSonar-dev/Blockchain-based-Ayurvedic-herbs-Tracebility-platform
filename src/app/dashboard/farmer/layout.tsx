@@ -37,6 +37,19 @@ export default function FarmerLayout({ children }: { children: ReactNode }) {
 
     getUser();
   }, [router]);
+
+  // Logout handler
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/users/logout");
+    } catch (err: any) {
+      // Optionally handle error
+      console.log(err)
+    }
+    setUser(null);
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -83,6 +96,15 @@ export default function FarmerLayout({ children }: { children: ReactNode }) {
                   Help
                 </Button>
               </Link>
+              {user && (
+                <Button
+                  variant="outline"
+                  className="text-gray-300 border-gray-600 hover:text-white hover:bg-gray-800"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              )}
             </div>
           </div>
         </div>

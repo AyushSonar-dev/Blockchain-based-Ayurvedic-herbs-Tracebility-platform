@@ -42,18 +42,18 @@ export default function SignUpPage() {
     });
   };
 
+  useEffect(() => {
+    if (role === "farmer") {
+      setFormData({ ...formData, orgType: "farmer" });
+    } else if (role === "processor") {
+      setFormData({ ...formData, orgType: "processor" });
+    }
+  }, [role])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (role === "farmer") {
-
-      setFormData({ ...formData, orgType: "farmer" });
-      console.log(formData)
-    } else if (role === "processor") {
-      setFormData({ ...formData, orgType: "processor" });
-    }
-
+    console.log("FormData: ",formData)
     try {
       const res = await axiosInstance.post(
         `/users/register`,
@@ -62,12 +62,12 @@ export default function SignUpPage() {
       console.log("Response:", res.data);
       if (res.data && res.data.token) {
         setUser(res.data.user)
-        localStorage.setItem("token", res.data.token);
+        router.push(`/dashboard/${res.data.user.orgType}/map`)
       }
       toast.success("Signup successful you may signin now ✅");
     } catch (err: any) {
       console.error("Error:", err.response?.data || err.message);
-      toast.error("Signup failed ❌");
+      toast.error( err.response?.data || err.message || "Signup failed");
     }
   };
 
@@ -81,7 +81,11 @@ export default function SignUpPage() {
 
         if (user) {
           setUser(user)
-          router.push(`/dashboard/${user.orgType}`)
+          if (user.orgType === 'farmer') {
+            router.push(`/dashboard/${user.orgType}/map`)
+          } else[
+            router.push(`/dashboard/${user.orgType}`)
+          ]
         }
 
 

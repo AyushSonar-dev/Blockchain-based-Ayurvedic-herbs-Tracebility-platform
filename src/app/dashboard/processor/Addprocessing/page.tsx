@@ -3,11 +3,11 @@
 import type React from "react";
 
 import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -15,21 +15,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Home, Upload, Plus, Leaf } from "lucide-react";
-import Link from "next/link";
+import { Plus, Leaf, Loader2 } from "lucide-react";
+import axiosInstance from "@/app/utils/axiosInstance";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 export default function AddProcessingPage() {
-  const [formData, setFormData] = useState({
-    batchId: "",
-    packageId: "",
-    lotNo: "",
-    expiry: "",
-  });
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const batchId = searchParams.get("batchId") || "";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [step, setStep] = useState<string>("");
+  const [temperature, setTemperature] = useState("40C");
+  const [duration, setDuration] = useState("6h");
+  const [humidity, setHumidity] = useState("30%");
+  const [processLoading, setProcessLoading] = useState(false)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Processing details submitted:", formData);
-    // Handle form submission
+    if (!batchId || !step) {
+      alert("Batch ID and Step are required.");
+      return;
+    }
+    const payload = {
+      batchId,
+      step,
+      temperature,
+      duration,
+      humidity,
+    };
+    try {
+      setProcessLoading(true)
+      const res = await axiosInstance.post("/collection/processing-step", {
+        batchId,
+        step
+      });
+      console.log(res)
+      toast.success("Process added successfully")
+    } catch (err: any) {
+      console.log(err)
+      toast.error(err.response.data.error)
+    } finally {
+      setProcessLoading(false)
+    }
   };
 
   return (
@@ -50,64 +77,61 @@ export default function AddProcessingPage() {
 
         <Card className="bg-gray-900/50 border-gray-800 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* First Row - Batch ID, Farmer Name, Quantity */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Step Dropdown */}
               <div className="space-y-2">
-                <Label htmlFor="batchId" className="text-white font-medium">
-                  Batch ID
+                <Label htmlFor="step" className="text-white font-medium">
+                  Step
+                </Label>
+                <Select value={step} onValueChange={setStep}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                    <SelectValue placeholder="Select step" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="drying">Drying</SelectItem>
+                    <SelectItem value="cooling">Cooling</SelectItem>
+                    <SelectItem value="sorting">Sorting</SelectItem>
+                    <SelectItem value="packaging">Packaging</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {/* Temperature */}
+              <div className="space-y-2">
+                <Label htmlFor="temperature" className="text-white font-medium">
+                  Temperature
                 </Label>
                 <Input
-                  id="batchId"
-                  value={formData.batchId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, batchId: e.target.value })
-                  }
+                  id="temperature"
+                  value={temperature}
+                  onChange={(e) => setTemperature(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                  placeholder=""
+                  placeholder="e.g. 40C"
                 />
               </div>
-
+              {/* Duration */}
               <div className="space-y-2">
-                <Label htmlFor="packageId" className="text-white font-medium">
-                  Package ID
+                <Label htmlFor="duration" className="text-white font-medium">
+                  Duration
                 </Label>
                 <Input
-                  id="packageId"
-                  value={formData.packageId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, packageId: e.target.value })
-                  }
+                  id="duration"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                  placeholder=""
+                  placeholder="e.g. 6h"
                 />
               </div>
+              {/* Humidity */}
               <div className="space-y-2">
-                <Label htmlFor="lotNo" className="text-white font-medium">
-                  Lot No
+                <Label htmlFor="humidity" className="text-white font-medium">
+                  Humidity
                 </Label>
                 <Input
-                  id="lotNo"
-                  value={formData.lotNo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lotNo: e.target.value })
-                  }
+                  id="humidity"
+                  value={humidity}
+                  onChange={(e) => setHumidity(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                  placeholder=""
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="expiry" className="text-white font-medium">
-                  Expiry Date
-                </Label>
-                <Input
-                  type="date"
-                  id="expiry"
-                  value={formData.expiry}
-                  onChange={(e) =>
-                    setFormData({ ...formData, expiry: e.target.value })
-                  }
-                  className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
-                  placeholder=""
+                  placeholder="e.g. 30%"
                 />
               </div>
             </div>
@@ -118,14 +142,15 @@ export default function AddProcessingPage() {
                 type="button"
                 variant="outline"
                 className="border-gray-700 text-white hover:bg-gray-800 bg-transparent px-8"
+                onClick={() => router.back()}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="bg-[#A6FF00] hover:bg-[#8FE600] text-black font-semibold px-8"
+                className="bg-[#A6FF00] flex justify-center items-center hover:bg-[#8FE600] text-black font-semibold px-8"
               >
-                Save Details
+                {processLoading ? <Loader2  className="animate-spin"/> :`Save Details`}
               </Button>
             </div>
           </form>

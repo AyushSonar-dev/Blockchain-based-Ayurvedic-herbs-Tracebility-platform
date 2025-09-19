@@ -12,6 +12,7 @@ import { LatLngExpression } from "leaflet";
 import { toast } from "sonner";
 import axiosInstance from "@/app/utils/axiosInstance";
 import { useRouter } from "next/navigation";
+import useUser from "@/app/store/store";
 
 // Dynamically import Leaflet components to avoid SSR issues
 const MapContainer = dynamic(
@@ -71,7 +72,11 @@ export default function FarmerMapPage() {
   const [currentLocation, setCurrentLocation] = useState<LatLng | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [createFarmLoading, setCreateFarmLoading] = useState(false)
-  const router = useRouter()
+  const [farm, setFarm] = useState(null)
+  const { user, setUser } = useUser()
+  const router = useRouter();
+
+
   useEffect(() => {
     setIsClient(true);
 
@@ -109,6 +114,7 @@ export default function FarmerMapPage() {
     }
   }, []);
 
+
   const handleMapClick = useCallback((latlng: LatLng) => {
     setFieldPoints((prev) => [...prev, latlng]);
   }, []);
@@ -134,7 +140,7 @@ export default function FarmerMapPage() {
 
     const payload = {
       boundaryJson: {
-        boundary: boundary,
+        boundary: boundary.map(([lat, lng]) => [lng, lat]),
       },
     };
 
@@ -165,6 +171,28 @@ export default function FarmerMapPage() {
     setFieldPoints([]);
   };
 
+  useEffect(() => {
+    const fetchFarm = async () => {
+      try {
+        if (user) {
+          const res = await axiosInstance.get(`/collection/farm/${user._id}`)
+          if(res.data) {
+            setFarm(res.data.farm)
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchFarm()
+  }, [user])
+
+  useEffect(() => {
+    if(farm && user.orgType == 'farmer') {
+      router.push('/dashboard/farmer')
+    }
+  },[farm])
   if (!isClient) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
